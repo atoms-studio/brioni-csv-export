@@ -1,22 +1,22 @@
 require('dotenv/config')
 const { createClient } = require('contentful')
 const {
-  documentToPlainTextString,
+	documentToPlainTextString,
 } = require('@contentful/rich-text-plain-text-renderer')
 const ObjectsToCsv = require('objects-to-csv')
 
 const path = './products.csv'
 
 const contentfulClient = createClient({
-  space: process.env.CTF_SPACE_ID,
-  accessToken: process.env.CTF_PREVIEW
-    ? process.env.CTF_PREW_ACCESS_TOKEN
-    : process.env.CTF_CDA_ACCESS_TOKEN,
-  environment: process.env.CTF_ENVIRONMENT || 'master',
-  removeUnresolved: true,
-  host: process.env.CTF_PREVIEW
-    ? 'preview.contentful.com'
-    : 'cdn.contentful.com',
+	space: process.env.CTF_SPACE_ID,
+	accessToken: process.env.CTF_PREVIEW
+		? process.env.CTF_PREW_ACCESS_TOKEN
+		: process.env.CTF_CDA_ACCESS_TOKEN,
+	environment: process.env.CTF_ENVIRONMENT || 'master',
+	removeUnresolved: true,
+	host: process.env.CTF_PREVIEW
+		? 'preview.contentful.com'
+		: 'cdn.contentful.com',
 })
 
 const exportCsv = async () => {
@@ -28,26 +28,26 @@ const exportCsv = async () => {
 }
 
 const fetchProducts = async () => {
-  let allItems = []
-  const limit = 100
-  let skip = 0
-  let hasMore = false
+	let allItems = []
+	const limit = 100
+	let skip = 0
+	let hasMore = false
 
-  do {
-    const { items, total } = await contentfulClient.getEntries({
-      content_type: 'topicProduct',
-      include: 1,
-      limit,
-      skip,
-      locale: '*',
-    })
+	do {
+		const { items, total } = await contentfulClient.getEntries({
+			content_type: 'topicProduct',
+			include: 1,
+			limit,
+			skip,
+			locale: '*',
+		})
 
-    allItems = allItems.concat(items)
-    hasMore = total && allItems.length < total
-    skip += limit
-  } while (hasMore)
+		allItems = allItems.concat(items)
+		hasMore = total && allItems.length < total
+		skip += limit
+	} while (hasMore)
 
-  return allItems
+	return allItems
 }
 
 const createFeedItem = (product) => {
@@ -94,24 +94,24 @@ const createFeedItem = (product) => {
 const getFirstLocaleVersion = (field) => Object.values(field)[0]
 
 const mapObjectKeys = (obj, fn, ...fnArgs) =>
-  Object.fromEntries(
-    Object.entries(obj).map(([key, value]) => [fn(key, ...fnArgs), value]),
-  )
+	Object.fromEntries(
+		Object.entries(obj).map(([key, value]) => [fn(key, ...fnArgs), value]),
+	)
 
 const mapObjectValues = (obj, fn, ...fnArgs) =>
-  Object.fromEntries(
-    Object.entries(obj).map(([key, value]) => [key, fn(value, ...fnArgs)]),
-  )
+	Object.fromEntries(
+		Object.entries(obj).map(([key, value]) => [key, fn(value, ...fnArgs)]),
+	)
 
 const concatenateObjectsValuesWithEqualKey = (objects) => {
-  const keys = [...new Set(objects.flatMap((obj) => Object.keys(obj)))]
+	const keys = [...new Set(objects.flatMap((obj) => Object.keys(obj)))]
 
-  return Object.fromEntries(
-    keys.map((key) => [
-      key,
-      objects.map((obj) => obj[key] || Object.values(obj)[0]).join(', '),
-    ]),
-  )
+	return Object.fromEntries(
+		keys.map((key) => [
+			key,
+			objects.map((obj) => obj[key] || Object.values(obj)[0]).join(', '),
+		]),
+	)
 }
 
 const prefix = (string, prefix) => `${prefix}_${string}`
@@ -119,12 +119,12 @@ const prefix = (string, prefix) => `${prefix}_${string}`
 const replaceNewLines = (text) => text.split('\n').join(' ')
 
 const createCsv = async (data, path) => {
-  const csv = new ObjectsToCsv(data, {
-    allColumns: true,
-  })
-  await csv.toDisk(path)
+	const csv = new ObjectsToCsv(data, {
+		allColumns: true,
+	})
+	await csv.toDisk(path)
 }
 
 exportCsv()
-  .then(() => console.log('Done!'))
-  .catch((err) => console.error(err))
+	.then(() => console.log('Done!'))
+	.catch((err) => console.error(err))
